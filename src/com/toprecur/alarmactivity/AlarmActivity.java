@@ -1,5 +1,6 @@
 package com.toprecur.alarmactivity;
 
+import java.io.ObjectOutputStream.PutField;
 import java.util.Calendar;
 
 import android.app.Activity;
@@ -12,26 +13,30 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.AlarmClock;
+import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 public class AlarmActivity extends Activity {
-
 	TimePicker myTimePicker;
 	Button buttonstartSetDialog;
 	Button buttonCancelAlarm;
 	Button buttonSound;
+	Button buttonSnooze;
 	TextView textAlarmPrompt;
 	private Context ctx;
 
@@ -49,7 +54,9 @@ public class AlarmActivity extends Activity {
 	private static final String TAG = AlarmActivity.class.getName();
 	protected static final LayoutInflater layoutInflater = null;
 	private boolean timerflag = false;
-	String mypath= "/Settings/Sound/Phone ringtone/";
+
+	String mypath = "/Settings/Sound/Phone ringtone/";
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,25 +120,25 @@ public class AlarmActivity extends Activity {
 		buttonSound = (Button) findViewById(R.id.btn_sound);
 		final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 				AlarmActivity.this);
-		
+
 		buttonSound.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 						AlarmActivity.this);
 
-				 Log.d("TAG","button inside mobile");
-//
-//				alertDialogBuilder
-//				// .setMessage("Click yes to exit!")
-//						.setCancelable(false).setPositiveButton("Sound",
-//								new DialogInterface.OnClickListener() {
-//									public void onClick(DialogInterface dialog,
-//											int id) {
-//										// if this button is clicked, close
-//										// current activity
-//										AlarmActivity.this.finish();
-//									}
-//								});
+				Log.d("TAG", "button inside mobile");
+				//
+				// alertDialogBuilder
+				// // .setMessage("Click yes to exit!")
+				// .setCancelable(false).setPositiveButton("Sound",
+				// new DialogInterface.OnClickListener() {
+				// public void onClick(DialogInterface dialog,
+				// int id) {
+				// // if this button is clicked, close
+				// // current activity
+				// AlarmActivity.this.finish();
+				// }
+				// });
 				// alertDialogBuilder.setPositiveButton("Sound", null );
 				alertDialogBuilder
 				// .setMessage("Click yes to exit!")
@@ -139,29 +146,57 @@ public class AlarmActivity extends Activity {
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int id) {
-//									 Uri uri=Uri.parse(Environment.getExternalStorageDirectory()+"mypath");
-//										AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-//												AlarmActivity.this);
-//										Log.d("TAG", "button inside sdCard");
-										//AlarmActivity.this.finish();
+										// Uri
+										// uri=Uri.parse(Environment.getExternalStorageDirectory()+"mypath");
+										// AlertDialog.Builder
+										// alertDialogBuilder = new
+										// AlertDialog.Builder(
+										// AlarmActivity.this);
+										// Log.d("TAG", "button inside sdCard");
+										// AlarmActivity.this.finish();
 										String uri = null;
-										Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-								        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,
-								                RingtoneManager.TYPE_NOTIFICATION);
-								        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-								        if (uri != null) {
-								            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-								                    Uri.parse(uri));
-								        } else {
-								            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-								                    (Uri) null);
-								        }
-								        startActivityForResult(intent, 0);
+										Intent intent = new Intent(
+												RingtoneManager.ACTION_RINGTONE_PICKER);
+										intent.putExtra(
+												RingtoneManager.EXTRA_RINGTONE_TYPE,
+												RingtoneManager.TYPE_NOTIFICATION);
+										intent.putExtra(
+												RingtoneManager.EXTRA_RINGTONE_TITLE,
+												"Select Tone");
+										// if (uri != null) {
+										// intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+										// Uri.parse(uri));
+										// } else {
+										// intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+										// (Uri) null);
+										// }
+										startActivityForResult(intent, 0);
 									}
 								});
 				alertDialogBuilder.show();
 			}
 		});
+		buttonSnooze = (Button) findViewById(R.id.btn_snooze);
+		// buttonSnooze.setOnClickListener(new OnClickListener() {
+		// public void onClick(View v) {
+		// Intent intent = new Intent(AlarmActivity.this, SnoozeActivity.class);
+		// PendingIntent pendingIntent =
+		// PendingIntent.getService(this, 0, intent,
+		// PendingIntent.FLAG_UPDATE_CURRENT);
+		//
+		// long currentTimeMillis = System.currentTimeMillis();
+		// long nextUpdateTimeMillis = currentTimeMillis + 5 *
+		// DateUtils.MINUTE_IN_MILLIS;
+		// Time nextUpdateTime = new Time();
+		// nextUpdateTime.set(nextUpdateTimeMillis);
+		//
+		// AlarmManager alarmManager = (AlarmManager)
+		// getSystemService(Context.ALARM_SERVICE);
+		// alarmManager.set(AlarmManager.RTC, nextUpdateTimeMillis,
+		// pendingIntent);
+		// }
+		// });
+
 	}
 
 	private void onChecked(final Calendar targetCal) {
@@ -362,10 +397,15 @@ public class AlarmActivity extends Activity {
 		 * pendingIntent);
 		 */
 
-		/*
-		 * textAlarmPrompt.setText( "\n\n***\n" + "Alarm is set@ " +
-		 * targetCal.getTime() + "\n" + "Repeat every 5 minutes\n" + "***\n");
-		 */
+		textAlarmPrompt.setText("\n\n***\n" + "Alarm is set@ "
+				+ targetCal.getTime() + "\n" + "Repeat every 5 minutes\n"
+				+ "***\n");
+		long hour = targetCal.getTimeInMillis();
+		long minute = targetCal.getTimeInMillis();
+		Intent i = new Intent(this, DataBaseActivity.class);
+		i.putExtra("hour", hour);
+		i.putExtra("minute", minute);
+		startActivity(i);
 		/*
 		 * } else { alarmManager.set(AlarmManager.RTC_WAKEUP,
 		 * targetCal.getTimeInMillis(), pendingIntent);
@@ -444,30 +484,66 @@ public class AlarmActivity extends Activity {
 		textAlarmPrompt.setText("\n\n***\n" + "Alarm is set@ "
 				+ targetCal.getTime() + "\n" + "One shot\n" + "***\n");
 	}
-		// AlertDialog aDialog = new AlertDialog.Builder(this).create();
-		protected void onActivityResult(int requestCode, int resultCode,
-	            Intent intent) {
-	        // TODO Auto-generated method stub
-	        super.onActivityResult(requestCode, resultCode, intent);
-	        if (resultCode == RESULT_OK) {
-	            Uri uri = intent
-	                    .getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-	            if (uri != null) {
-	               
-	                String ringTonePath = uri.toString();
-	                Log.d("Ringtone Path",""+ ringTonePath);        
-	                // Set the Ringtone to Alarm 
-	                RingtoneManager.setActualDefaultRingtoneUri(AlarmActivity.this, RingtoneManager.TYPE_ALARM, uri);
 
-	                // I am checking wether the selected ringtone is set for alarm or not
+	public void inday(int day, PendingIntent pendingIntent, Calendar targetCal,
+			long remainingMilisecondsToTopHour) {
 
-	                Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
-	                i.putExtra(AlarmClock.EXTRA_HOUR, 12); // 12 pm
-	                i.putExtra(AlarmClock.EXTRA_MINUTES, 26); // 26 minutes
-	                startActivity(i);
-	            }
-	        }
+		Calendar calSet = Calendar.getInstance();
 
+		int hour = timePicker.getCurrentHour();
+
+		int minute = timePicker.getCurrentMinute();
+
+		// calSet.set(Calendar.DAY_OF_WEEK, week);
+
+		calSet.set(Calendar.HOUR_OF_DAY, hour);
+
+		calSet.set(Calendar.MINUTE, minute);
+
+		calSet.set(Calendar.SECOND, 0);
+
+		calSet.set(Calendar.MILLISECOND, 0);
+		long firstTime = SystemClock.elapsedRealtime();
+		firstTime += remainingMilisecondsToTopHour;
+		long a = calSet.getTimeInMillis();
+
+		// Schedule the alarm!
+		AlarmManager am = (AlarmManager) ctx
+				.getSystemService(Context.ALARM_SERVICE);
+		am.setRepeating(AlarmManager.ELAPSED_REALTIME,
+				calSet.getTimeInMillis(), 1 * 60 * 60 * 1000, pendingIntent);
+
+		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+				calSet.getTimeInMillis(), AlarmManager.INTERVAL_HOUR * 12,
+				pendingIntent);
+		textAlarmPrompt.setText("\n\n***\n" + "Alarm is set@ "
+				+ targetCal.getTime() + "\n" + "One shot\n" + "***\n");
 	}
+	// AlertDialog aDialog = new AlertDialog.Builder(this).create();
+	// protected void onActivityResult(int requestCode, int resultCode,
+	// Intent intent) {
+	// // TODO Auto-generated method stub
+	// super.onActivityResult(requestCode, resultCode, intent);
+	// if (resultCode == RESULT_OK) {
+	// Uri uri = intent
+	// .getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+	// if (uri != null) {
+	//
+	// String ringTonePath = uri.toString();
+	// Log.d("Ringtone Path",""+ ringTonePath);
+	// // Set the Ringtone to Alarm
+	// RingtoneManager.setActualDefaultRingtoneUri(AlarmActivity.this,
+	// RingtoneManager.TYPE_ALARM, uri);
+	//
+	// // I am checking wether the selected ringtone is set for alarm or not
+	//
+	// Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+	// i.putExtra(AlarmClock.EXTRA_HOUR, 12); // 12 pm
+	// i.putExtra(AlarmClock.EXTRA_MINUTES, 26); // 26 minutes
+	// startActivity(i);
+	// }
+	// }
+
+	// }
 
 }

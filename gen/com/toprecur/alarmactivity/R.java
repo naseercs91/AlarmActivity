@@ -24,8 +24,9 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f090013;
+        public static final int action_settings=0x7f090014;
         public static final int alarmprompt=0x7f09000f;
+        public static final int btn_snooze=0x7f090013;
         public static final int btn_sound=0x7f090012;
         public static final int cancel=0x7f090011;
         public static final int optrepeat1=0x7f090001;
@@ -47,9 +48,13 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_alarm=0x7f030000;
+        public static final int activity_main=0x7f030001;
+        public static final int activity_snooze=0x7f030002;
     }
     public static final class menu {
         public static final int alarm=0x7f080000;
+        public static final int main=0x7f080001;
+        public static final int snooze=0x7f080002;
     }
     public static final class raw {
         public static final int alarm_rooster=0x7f040000;
@@ -58,6 +63,8 @@ public final class R {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int hello_world=0x7f060002;
+        public static final int title_activity_main=0x7f060004;
+        public static final int title_activity_snooze=0x7f060003;
     }
     public static final class style {
         /** 

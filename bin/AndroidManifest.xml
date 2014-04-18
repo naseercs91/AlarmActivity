@@ -7,11 +7,10 @@
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="18" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
-    
-    
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -27,7 +26,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.toprecur.alarmactivity.AlarmReciever" android:process=":remote" />
+
+        <receiver
+            android:name="com.toprecur.alarmactivity.AlarmReciever"
+            android:process=":remote" />
+
+        <activity
+            android:name="com.toprecur.alarmactivity.SnoozeActivity"
+            android:label="@string/title_activity_snooze" >
+        </activity>
+        <activity
+            android:name="com.toprecur.alarmactivity.DataBaseActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
     </application>
 
 </manifest>
